@@ -457,8 +457,8 @@ function App() {
 
   if (step === -1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-6">
-        <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-2 sm:p-6">
+        <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8">
           <h1 className="text-3xl font-bold text-center mb-8">🧙‍♂️ Frontend RPG Interview</h1>
           <p className="text-gray-600 mb-8 text-center">Обери свого героя та пройди співбесіду!</p>
           <div className="grid gap-4">
@@ -478,7 +478,7 @@ function App() {
                   <h3 className="font-semibold text-lg">{h.name}</h3>
                   <p className="text-gray-600">{h.description}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2">
                   {h.powerIcon}
                   <span className="text-sm text-gray-500">{h.powerName}</span>
                 </div>
@@ -493,12 +493,12 @@ function App() {
   if (ending) {
     return (
       <motion.div
-        className={`min-h-screen bg-gradient-to-br ${hero?.background || ''} p-6 flex items-center justify-center`}
+        className={`min-h-screen bg-gradient-to-br ${hero?.background || ''} p-2 sm:p-6 flex items-center justify-center`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
         {showConfetti && <Confetti />}
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-xl w-full text-center">
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 max-w-xl w-full text-center">
           <div className="flex justify-center mb-6">
             {endings[ending].icon}
           </div>
@@ -524,19 +524,19 @@ function App() {
     <AnimatePresence mode="wait">
       <motion.div
         key={step}
-        className={`min-h-screen bg-gradient-to-br ${hero?.background || ''} p-6`}
+        className={`min-h-screen bg-gradient-to-br ${hero?.background || ''} p-2 sm:p-6`}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.3 }}
       >
-        {showConfetti && <Confetti />}
-        <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+        {showConfetti && <Confetti style={{ maxWidth: '100%' }}/>}
+        <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-bold">Рівень {step + 1}</h1>
               {combo > 2 && (
-                <div className="px-3 py-1 bg-yellow-100 rounded-full text-sm font-medium text-yellow-800">
+                <div className="hidden sm:block px-3 py-1 bg-yellow-100 rounded-full text-sm font-medium text-yellow-800">
                   Комбо x{combo} 🔥
                 </div>
               )}
