@@ -376,6 +376,15 @@ const powerUpMessages: string[] = [
   "Геніально! 🧠"
 ];
 
+function shuffleArray<T>(array: T[]): T[] {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
 function App() {
   const [step, setStep] = useState<number>(-1);
   const [score, setScore] = useState<number>(0);
@@ -389,10 +398,20 @@ function App() {
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [powerUpMessage, setPowerUpMessage] = useState<string>("");
   const [combo, setCombo] = useState<number>(0);
+  
+  // Adding a new state to store shuffled options
+  const [shuffledOptions, setShuffledOptions] = useState<string[][]>([]);
 
   useEffect(() => {
     document.title = "Frontend RPG Interview";
   }, []);
+
+  // Update useEffect to initialize shuffled variants
+  useEffect(() => {
+    if (hero) {
+      setShuffledOptions(hero.questions.map(q => shuffleArray(q.options)));
+    }
+  }, [hero]);
 
   const handleHeroPick = (choice: Hero) => {
     playClick();
@@ -534,7 +553,8 @@ function App() {
         <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold">Рівень {step + 1}</h1>
+              {/* <h1 className="text-2xl font-bold">Рівень {step + 1}</h1> */}
+              <h1 className="text-2xl font-bold">Рівень {step + 1}/{shuffledOptions.length}</h1>
               {combo > 2 && (
                 <div className="hidden sm:block px-3 py-1 bg-yellow-100 rounded-full text-sm font-medium text-yellow-800">
                   Комбо x{combo} 🔥
@@ -568,25 +588,31 @@ function App() {
                   {currentEffect && <div className="ml-2">{currentEffect}</div>}
                 </div>
                 <div className="space-y-3">
-                  {hero.questions[step].options.map((opt, idx) => (
-                    <motion.button
-                      key={idx}
-                      className={`w-full p-4 rounded-xl text-left transition-all
-                        ${showExplanation 
-                          ? idx === hero.questions[step].correct 
-                            ? 'bg-green-100' 
-                            : 'bg-red-50'
-                          : 'bg-gray-50 hover:bg-gray-100'
-                        }
-                        ${showExplanation && 'cursor-default'}`}
-                      onClick={() => !showExplanation && handleAnswer(idx)}
-                      disabled={showExplanation}
-                      whileHover={!showExplanation ? { scale: 1.01 } : {}}
-                      whileTap={!showExplanation ? { scale: 0.99 } : {}}
-                    >
-                      {opt}
-                    </motion.button>
-                  ))}
+                  {shuffledOptions[step]?.map((opt, idx) => {
+                    // We find the original index of the correct answer
+                    const originalIndex = hero.questions[step].options.indexOf(opt);
+                    const isCorrect = originalIndex === hero.questions[step].correct;
+                    
+                    return (
+                      <motion.button
+                        key={idx}
+                        className={`w-full p-4 rounded-xl text-left transition-all
+                          ${showExplanation 
+                            ? isCorrect
+                              ? 'bg-green-100' 
+                              : 'bg-red-50'
+                            : 'bg-gray-50 hover:bg-gray-100'
+                          }
+                          ${showExplanation && 'cursor-default'}`}
+                        onClick={() => !showExplanation && handleAnswer(originalIndex)}
+                        disabled={showExplanation}
+                        whileHover={!showExplanation ? { scale: 1.01 } : {}}
+                        whileTap={!showExplanation ? { scale: 0.99 } : {}}
+                      >
+                        {opt}
+                      </motion.button>
+                    );
+                  })}
                 </div>
               </>
             )}
