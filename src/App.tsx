@@ -2,13 +2,7 @@ import React, { useState, useEffect, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSound from 'use-sound';
 import Confetti from 'react-confetti';
-import { Wand2, Sword, Trophy, XCircle, Coffee, Sparkles, Zap, Heart, Star, Flame, Brain, Lightbulb, Rocket, Magnet as Magic } from 'lucide-react';
-
-// Using direct URLs for sounds from a CDN
-// const clickSfx = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3';
-// const winSfx = 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3';
-// const failSfx = 'https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3';
-
+import { Wand2, Sword, Trophy, XCircle, Coffee, Sparkles, Zap, Heart, Star, Flame, Brain, Lightbulb, Rocket, Magnet as Magic, Check, AlertCircle } from 'lucide-react';
 import clickSfx from './sounds/click.mp3';
 import winSfx from './sounds/win.mp3';
 import failSfx from './sounds/fail.mp3';
@@ -46,55 +40,14 @@ interface Endings {
   neutral: Ending;
 }
 
-type EndingType = keyof Endings | "";
+interface AnswerHistory {
+  question: string;
+  selectedAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
 
-// const questions = [
-//   {
-//     question: "Поясни hoisting в JS котику 🐱",
-//     options: [
-//       "Мур-мур, змінні як котики — спочатку підстрибують вгору файлу, але undefined, поки їх не погладили (ініціалізували).",
-//       "Це як try-catch, тільки без try і без catch. Взагалі не пам’ятаю.",
-//       "Коти не слухають пояснення. Вони самі себе хостять."
-//     ],
-//     correct: 0
-//   },
-//   {
-//     question: "У вас дедлайн вчора. useEffect не працює. Що робиш?",
-//     options: [
-//       "Спочатку — глибокий вдих. Потім — console.log усього, включно з совістю.",
-//       "Змінюю професію на баристу. Там менше стресу.",
-//       "Іду в ліс. useEffect не працює в лісі — це вже точно."
-//     ],
-//     correct: 0
-//   },
-//   {
-//     question: "Коли можна використовувати !important?",
-//     options: [
-//       "Лише в крайніх випадках. !important — як emergency-чай: не зловживати.",
-//       "Ставлю !important на все. Якщо не працює — двічі!",
-//       "!important — мій найкращий друг. Ми навіть код разом писали."
-//     ],
-//     correct: 0
-//   },
-//   {
-//     question: "Що ти робиш, якщо компонент не ререндериться?",
-//     options: [
-//       "Перевіряю залежності useEffect та setState. Зазвичай там собака зарита.",
-//       "Кричу на монітор. Це не допомагає, але відчуваю себе краще.",
-//       "Перезапускаю все і сподіваюся, що прокляття знято."
-//     ],
-//     correct: 0
-//   },
-//   {
-//     question: "Яка різниця між null і undefined?",
-//     options: [
-//       "undefined — коли не визначили, null — коли навмисно нічого.",
-//       "null — це коли нуль, а undefined — це баг.",
-//       "Це просто різні способи JS сказати: 'я не знаю, що ти хочеш'."
-//     ],
-//     correct: 0
-//   }
-// ];
+type EndingType = keyof Endings | "";
 
 const reactQuestions: QuestionOption[] = [
   {
@@ -350,19 +303,16 @@ const heroes: Hero[] = [
 const endings: Endings = {
   good: {
     text: "✨ Рекрутер: Вау! Ти просто неймовірний! Готуй резюме, ми тебе забираємо! І так, твої жарти теж сподобались! 🌟",
-    // text: "✅ Рекрутер: Нам все сподобалось. Вітаємо, оффер твій! І ще бонус за гумор 😎",
     icon: <Trophy className="w-12 h-12 text-yellow-500 animate-bounce" />,
     description: "Ти довів, що володієш не тільки знаннями, але й почуттям гумору! Подвійна перемога! 🎉"
   },
   bad: {
     text: "💫 Рекрутер: Хм... Може, спробуєш стати стендап-коміком? Твої відповіді були... дуже креативними! 😅",
-    // text: "❌ Рекрутер: Дякуємо за час. Але ми шукаємо когось з... іншим баченням.",
     icon: <XCircle className="w-12 h-12 text-red-500 animate-pulse" />,
     description: "Не засмучуйся! Навіть найкращі герої іноді промахуються. Спробуй ще раз! 🎯"
   },
   neutral: {
     text: "🎭 Рекрутер: Цікаво... Дуже цікаво... Настільки цікаво, що ми не знаємо, чи сміятися чи плакати! 🤔",
-    // text: "🤡 Рекрутер: Ми вам передзвонимо. Якщо щось… колись…",
     icon: <Coffee className="w-12 h-12 text-brown-500 animate-spin" />,
     description: "Ти десь посередині між джуном і сеньйором. Час випити кави і повторити! ☕"
   }
@@ -385,6 +335,11 @@ function shuffleArray<T>(array: T[]): T[] {
   return newArray;
 }
 
+interface ShuffledOption {
+  text: string;
+  originalIndex: number;
+}
+
 function App() {
   const [step, setStep] = useState<number>(-1);
   const [score, setScore] = useState<number>(0);
@@ -398,18 +353,21 @@ function App() {
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [powerUpMessage, setPowerUpMessage] = useState<string>("");
   const [combo, setCombo] = useState<number>(0);
-  
-  // Adding a new state to store shuffled options
-  const [shuffledOptions, setShuffledOptions] = useState<string[][]>([]);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [answerHistory, setAnswerHistory] = useState<AnswerHistory[]>([]);
+  const [shuffledOptions, setShuffledOptions] = useState<ShuffledOption[][]>([]);
+  const [showAnswerReview, setShowAnswerReview] = useState<boolean>(false);
 
   useEffect(() => {
     document.title = "Frontend RPG Interview";
   }, []);
 
-  // Update useEffect to initialize shuffled variants
   useEffect(() => {
     if (hero) {
-      setShuffledOptions(hero.questions.map(q => shuffleArray(q.options)));
+      const shuffled = hero.questions.map(q => 
+        shuffleArray(q.options.map((text, originalIndex) => ({ text, originalIndex })))
+      );
+      setShuffledOptions(shuffled);
     }
   }, [hero]);
 
@@ -417,13 +375,31 @@ function App() {
     playClick();
     setHero(choice);
     setStep(0);
+    setAnswerHistory([]);
   };
 
-  const handleAnswer = (index: number) => {
+  const handleAnswerSelect = (index: number) => {
     playClick();
-    if (hero && index === hero.questions[step].correct) {
+    setSelectedAnswer(index);
+  };
+
+  const handleAnswerConfirm = () => {
+    if (selectedAnswer === null || !hero) return;
+
+    const currentQuestion = hero.questions[step];
+    const selectedOptionOriginalIndex = shuffledOptions[step][selectedAnswer].originalIndex;
+    const isCorrect = selectedOptionOriginalIndex === currentQuestion.correct;
+    
+    setAnswerHistory([...answerHistory, {
+      question: currentQuestion.question,
+      selectedAnswer: shuffledOptions[step][selectedAnswer].text,
+      correctAnswer: currentQuestion.options[currentQuestion.correct],
+      isCorrect
+    }]);
+
+    if (isCorrect) {
       setScore(score + 1);
-      setCurrentEffect(hero.questions[step].effect);
+      setCurrentEffect(currentQuestion.effect);
       setCombo(combo + 1);
       if (combo >= 2) {
         setShowConfetti(true);
@@ -442,13 +418,13 @@ function App() {
     setShowExplanation(false);
     setCurrentEffect(null);
     setPowerUpMessage("");
+    setSelectedAnswer(null);
     
     if (hero && nextStep < hero.questions.length) {
       setStep(nextStep);
     } else {
       let final: EndingType;
-      // if (hero && score + 1 === hero.questions.length) {
-      if (hero && score === hero.questions.length) {
+      if (score === hero?.questions.length) {
         final = 'good';
         playWin();
         setShowConfetti(true);
@@ -472,11 +448,14 @@ function App() {
     setShowConfetti(false);
     setPowerUpMessage("");
     setCombo(0);
+    setSelectedAnswer(null);
+    setAnswerHistory([]);
+    setShowAnswerReview(false);
   };
 
   if (step === -1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-2 sm:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-2 sm:p-6 flex items-center justify-center">
         <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8">
           <h1 className="text-3xl font-bold text-center mb-8">🧙‍♂️ Frontend RPG Interview</h1>
           <p className="text-gray-600 mb-8 text-center">Обери свого героя та пройди співбесіду!</p>
@@ -517,18 +496,60 @@ function App() {
         animate={{ opacity: 1 }}
       >
         {showConfetti && <Confetti />}
-        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 max-w-xl w-full text-center">
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 max-w-xl w-full">
           <div className="flex justify-center mb-6">
             {endings[ending].icon}
           </div>
-          <h1 className="text-2xl font-bold mb-4">🎉 Результати співбесіди</h1>
-          <p className="text-lg mb-4">Твій герой: {hero?.name}</p>
-          <p className="text-lg mb-4">{endings[ending].text}</p>
-          <p className="text-gray-600 mb-6">{endings[ending].description}</p>
-          <p className="text-xl mb-6">Правильних відповідей: {score} з {hero?.questions.length}</p>
+          <h1 className="text-2xl font-bold mb-4 text-center">🎉 Результати співбесіди</h1>
+          <p className="text-lg mb-4 text-center">Твій герой: {hero?.name}</p>
+          <p className="text-lg mb-4 text-center">{endings[ending].text}</p>
+          <p className="text-gray-600 mb-6 text-center">{endings[ending].description}</p>
+          <p className="text-xl mb-6 text-center">Правильних відповідей: {score} з {hero?.questions.length}</p>
+
+          <div className="mb-6">
+            <button
+              onClick={() => setShowAnswerReview(!showAnswerReview)}
+              className="w-full px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center justify-center gap-2"
+            >
+              {showAnswerReview ? "Сховати відповіді" : "Переглянути відповіді"}
+              <AlertCircle className="w-5 h-5" />
+            </button>
+          </div>
+
+          {showAnswerReview && (
+            <div className="mb-6 space-y-4">
+              <h2 className="text-xl font-semibold mb-4">Огляд відповідей:</h2>
+              {answerHistory.map((answer, index) => (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg ${
+                    answer.isCorrect ? 'bg-green-50' : 'bg-red-50'
+                  }`}
+                >
+                  <p className="font-medium mb-2">{answer.question}</p>
+                  <div className="flex items-start gap-2">
+                    <div className={`mt-1 ${answer.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                      {answer.isCorrect ? <Check className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <p className={answer.isCorrect ? 'text-green-600' : 'text-red-600'}>
+                        Твоя відповідь: {answer.selectedAnswer}
+                      </p>
+                      {!answer.isCorrect && (
+                        <p className="text-green-600 mt-1">
+                          Правильна відповідь: {answer.correctAnswer}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           <motion.button
             onClick={resetGame}
-            className="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
+            className="w-full px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -543,7 +564,7 @@ function App() {
     <AnimatePresence mode="wait">
       <motion.div
         key={step}
-        className={`min-h-screen bg-gradient-to-br ${hero?.background || ''} p-2 sm:p-6`}
+        className={`min-h-screen bg-gradient-to-br ${hero?.background || ''} p-2 sm:p-6 flex items-center justify-center`}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
@@ -553,8 +574,7 @@ function App() {
         <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              {/* <h1 className="text-2xl font-bold">Рівень {step + 1}</h1> */}
-              <h1 className="text-2xl font-bold">Рівень {step + 1}/{shuffledOptions.length}</h1>
+              <h1 className="text-2xl font-bold">Рівень {step + 1}/{hero?.questions.length}</h1>
               {combo > 2 && (
                 <div className="hidden sm:block px-3 py-1 bg-yellow-100 rounded-full text-sm font-medium text-yellow-800">
                   Комбо x{combo} 🔥
@@ -588,35 +608,51 @@ function App() {
                   {currentEffect && <div className="ml-2">{currentEffect}</div>}
                 </div>
                 <div className="space-y-3">
-                  {shuffledOptions[step]?.map((opt, idx) => {
-                    // We find the original index of the correct answer
-                    const originalIndex = hero.questions[step].options.indexOf(opt);
-                    const isCorrect = originalIndex === hero.questions[step].correct;
-                    
-                    return (
-                      <motion.button
-                        key={idx}
-                        className={`w-full p-4 rounded-xl text-left transition-all
-                          ${showExplanation 
-                            ? isCorrect
-                              ? 'bg-green-100' 
-                              : 'bg-red-50'
+                  {shuffledOptions[step]?.map((opt, idx) => (
+                    <motion.button
+                      key={idx}
+                      className={`w-full p-4 rounded-xl text-left transition-all
+                        ${showExplanation 
+                          ? opt.originalIndex === hero.questions[step].correct 
+                            ? 'bg-green-100' 
+                            : selectedAnswer === idx
+                              ? 'bg-red-100'
+                              : 'bg-gray-50'
+                          : selectedAnswer === idx
+                            ? 'bg-purple-100'
                             : 'bg-gray-50 hover:bg-gray-100'
-                          }
-                          ${showExplanation && 'cursor-default'}`}
-                        onClick={() => !showExplanation && handleAnswer(originalIndex)}
-                        disabled={showExplanation}
-                        whileHover={!showExplanation ? { scale: 1.01 } : {}}
-                        whileTap={!showExplanation ? { scale: 0.99 } : {}}
-                      >
-                        {opt}
-                      </motion.button>
-                    );
-                  })}
+                        }
+                        ${showExplanation && 'cursor-default'}`}
+                      onClick={() => !showExplanation && handleAnswerSelect(idx)}
+                      disabled={showExplanation}
+                      whileHover={!showExplanation ? { scale: 1.01 } : {}}
+                      whileTap={!showExplanation ? { scale: 0.99 } : {}}
+                    >
+                      {opt.text}
+                    </motion.button>
+                  ))}
                 </div>
               </>
             )}
           </div>
+
+          {!showExplanation && selectedAnswer !== null && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-end"
+            >
+              <motion.button
+                onClick={handleAnswerConfirm}
+                className="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Check className="w-5 h-5" />
+                Підтвердити відповідь
+              </motion.button>
+            </motion.div>
+          )}
 
           {showExplanation && hero && (
             <motion.div
