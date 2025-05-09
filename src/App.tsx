@@ -2,7 +2,7 @@ import React, { useState, useEffect, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSound from 'use-sound';
 import Confetti from 'react-confetti';
-import { Wand2, Sword, Trophy, XCircle, Coffee, Sparkles, Zap, Heart, Star, Flame, Brain, Lightbulb, Rocket, Magnet as Magic, Check, AlertCircle } from 'lucide-react';
+import { Wand2, Sword, Trophy, XCircle, Coffee, Sparkles, Zap, Heart, Star, Flame, Lightbulb, Rocket, Magnet as Magic, Check, AlertCircle, Box, Syringe, Hammer, Map, Filter, Radar, Shield, Repeat2, RadioTower } from 'lucide-react';
 import clickSfx from './sounds/click.mp3';
 import winSfx from './sounds/win.mp3';
 import failSfx from './sounds/fail.mp3';
@@ -275,6 +275,119 @@ const vueQuestions: QuestionOption[] = [
   }
 ];
 
+const angularQuestions: QuestionOption[] = [
+  {
+    question: "Що таке Angular Module? 📦",
+    options: [
+      "Це як валіза для коду — складаєш туди компоненти, сервіси і пайпи, щоб усе було на місці",
+      "Це як модуль погоди — показує дощ з багів",
+      "Module — це коли Angular хоче виглядати дуже серйозно і модульно"
+    ],
+    correct: 0,
+    explanation: "Angular Module — це контейнер для групи пов’язаних частин додатку: компонентів, директив, сервісів тощо.",
+    effect: <Box className="w-6 h-6 text-blue-500 animate-pulse" />
+  },
+  {
+    question: "Поясни Dependency Injection в Angular 💉",
+    options: [
+      "Це як магічний холодильник - просто говориш 'дай сервіс' і Angular підставляє його тобі в конструктор!",
+      "Це коли Angular вводить залежності між розробниками, щоб вони не сварились",
+      "DI - це коли тобі вводять код за допомогою шприца"
+    ],
+    correct: 0,
+    explanation: "DI - це патерн, де клас отримує залежності ззовні, а не створює їх сам, що робить код більш тестованим і гнучким.",
+    effect: <Zap className="w-6 h-6 text-blue-500 animate-bounce" />
+  },
+  {
+    question: "Що таке двостороннє зв'язування ([(ngModel)])? 🔁",
+    options: [
+      "Це як телепатія між полем вводу і твоїми даними - змінив одне, інше одразу знає! Магія, та й годі!",
+      "Це коли дані пов'язані так сильно, що не можуть розлучитися",
+      "Це модель, яка дивиться в обидві сторони перед тим, як перейти дорогу"
+    ],
+    correct: 0,
+    explanation: "Двостороннє зв'язування даних [(ngModel)] синхронізує дані між моделлю компонента і представленням (view).",
+    effect: <Repeat2 className="w-6 h-6 text-purple-500 animate-spin" />
+  },
+  {
+    question: "Що таке Angular Pipes? 🚰",
+    options: [
+      "Це як фільтри для даних — пропускають значення через трубу і видають гарний результат!",
+      "Pipes — це коли Angular будує водопровід",
+      "Це спеціальні труби для транспортування компонентів",
+    ],
+    correct: 0,
+    explanation: "Pipes трансформують дані в шаблонах, наприклад, форматують дати чи змінюють регістр тексту.",
+    effect: <Zap className="w-6 h-6 text-blue-500 animate-bounce" />
+  },
+  {
+    question: "Поясни Angular Change Detection котику 😼",
+    options: [
+      "Мяу! Це як пильний вартовий, який слідкує за кожним муркотінням (зміною) в компоненті і миттєво все оновлює!",
+      "Це коли Angular намагається вгадати, що змінилося. Іноді вгадує...",
+      "Change Detection? Це коли ти змінюєш колір котика на екрані"
+    ],
+    correct: 0,
+    explanation: "Angular Change Detection - механізм, який визначає, коли потрібно оновити DOM після зміни стану компонента.",
+    effect: <Rocket className="w-6 h-6 text-red-500 animate-pulse" />
+  },
+  {
+    question: "Що таке Angular Decorators @Component, @Injectable тощо? 🧙‍♂️",
+    options: [
+      "Це як чарівні заклинання, які додають суперсили до класів. @Component робить клас компонентом, @Injectable - сервісом!",
+      "Це просто якісь символи перед класами, Angular їх любить",
+      "Декоратори? Це коли ти прикрашаєш свій код бантиками"
+    ],
+    correct: 0,
+    explanation: "Декоратори - це метадані, які додають функціональність до класів, методів або властивостей в Angular.",
+    effect: <Hammer className="w-6 h-6 text-gray-700 animate-spin" />
+  },
+  {
+    question: "Як працюють Angular Components? 🧱",
+    options: [
+      "Це як цеглинки LEGO - з них будується весь інтерфейс. Кожна цеглинка має свою роботу і вигляд!",
+      "Компоненти - це коли Angular компонує ваш код в одну велику кашу",
+      "Це спеціальні елементи, які роблять ваш сайт інтерактивним, ніби магія!"
+    ],
+    correct: 0,
+    explanation: "Компоненти - це будівельні блоки UI в Angular, які включають HTML-шаблон, TypeScript-клас і CSS-стилі.",
+    effect: <Map className="w-6 h-6 text-orange-500 animate-bounce" />
+  },
+  {
+    question: "RxJS і Observables в Angular - це що за звірі? 📡",
+    options: [
+      "Це як підписка на улюблений YouTube-канал: ти підписуєшся (subscribe) на потік даних (Observable) і отримуєш сповіщення, коли щось нове з'являється.",
+      "Це коли твій код настільки реактивний, що вибухає від нових даних",
+      "RxJS - це рецепти для JavaScript, а Observables - це дуже спостережливі компоненти"
+    ],
+    correct: 0,
+    explanation: "RxJS - це бібліотека для реактивного програмування, що використовує Observables для роботи з асинхронними потоками даних та подіями.",
+    effect: <RadioTower className="w-6 h-6 text-pink-500 animate-bounce" />
+  },
+  {
+    question: "Що таке Angular Forms (Template-driven vs Reactive)? 📝 vs 🧪",
+    options: [
+      "Template-driven - це як малювання по номерах, HTML задає структуру. Reactive - це як хімічний експеримент, ви контролюєте все в коді!",
+      "Template-driven форми для тих, хто любить шаблони, Reactive - для реактивних людей",
+      "Це два способи створити форму: один легкий, інший - дуже складний"
+    ],
+    correct: 0,
+    explanation: "Template-driven forms покладаються на директиви в шаблоні, а Reactive forms керуються класом компонента і надають більше гнучкості.",
+    effect: <Filter className="w-6 h-6 text-teal-500 animate-pulse" />
+  },
+  {
+    question: "Що таке Angular Router? 🛤️",
+    options: [
+      "Це як провідник у поїзді — веде тебе між компонентами без перезавантаження сторінки!",
+      "Router — це коли Angular роумує по інтернету",
+      "Це спеціальний роутер для Wi-Fi в Angular",
+    ],
+    correct: 0,
+    explanation: "Angular Router керує навігацією в SPA, дозволяючи переходити між компонентами за URL.",
+    effect: <Radar className="w-6 h-6 text-purple-500 animate-bounce" />
+  },
+];
+
 const heroes: Hero[] = [
   {
     id: "react-wizard",
@@ -297,7 +410,18 @@ const heroes: Hero[] = [
     background: "from-green-50 to-emerald-50",
     powerIcon: <Rocket className="w-6 h-6 text-green-500" />,
     powerName: "Реактивний удар"
-  }
+  },
+  {
+    id: "angular-knight",
+    name: "Angular Knight",
+    icon: <Shield className="w-8 h-8" />,
+    description: "Хранитель модулів та святий лицар DI",
+    color: "red",
+    questions: angularQuestions,
+    background: "from-red-50 to-orange-50",
+    powerIcon: <Syringe className="w-6 h-6 text-red-500" />,
+    powerName: "Ін'єкція могутності"
+  },
 ];
 
 const endings: Endings = {
@@ -465,11 +589,11 @@ function App() {
                 key={h.id}
                 onClick={() => handleHeroPick(h)}
                 className={`p-4 rounded-xl text-left flex items-center gap-4 transition-all
-                  ${h.color === 'blue' ? 'bg-blue-50 hover:bg-blue-100' : 'bg-green-50 hover:bg-green-100'}`}
+                  ${h.color === 'blue' ? 'bg-blue-50 hover:bg-blue-100' : h.color === 'green' ? 'bg-green-50 hover:bg-green-100' : 'bg-red-50 hover:bg-red-100'}`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className={`p-3 rounded-lg ${h.color === 'blue' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                <div className={`p-3 rounded-lg ${h.color === 'blue' ? 'bg-blue-100' : h.color === 'green' ? 'bg-green-100' : 'bg-red-100'}`}>
                   {h.icon}
                 </div>
                 <div className="flex-1">
@@ -582,7 +706,7 @@ function App() {
               )}
             </div>
             <div className="flex items-center gap-2">
-              <div className={`p-2 rounded-lg ${hero?.color === 'blue' ? 'bg-blue-100' : 'bg-green-100'}`}>
+              <div className={`p-2 rounded-lg ${hero?.color === 'blue' ? 'bg-blue-100' : hero?.color === 'green' ? 'bg-green-100' : 'bg-red-100'}`}>
                 {hero?.icon}
               </div>
               <span className="font-medium">{hero?.name}</span>
